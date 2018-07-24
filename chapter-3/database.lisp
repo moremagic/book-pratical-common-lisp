@@ -49,12 +49,30 @@
 (defun artist-selector (artist)
   #'(lambda (cd) (equal (getf cd :artist) artist)))
 
-(defun where (&key title artist rating (ripped nil repped-p))
+(defun where (&key title artist rating (ripped nil ripped-p))
   #'(lambda (cd)
       (and
         (if title (equal (getf cd :title) title) t)
         (if artist (equal (getf cd :artist) artist) t)
         (if rating (equal (getf cd :rating) rating) t)
-        (if ripped (equal (getf cd :ripped) ripped) t))))
+        (if ripped-p (equal (getf cd :ripped) ripped) t))))
+
+(defun update (selector-fn &key title artist rating (ripped nil ripped-p))
+  (setf *db*
+        (mapcar
+          #'(lambda (row)
+              (when (funcall selector-fn row)
+                (if title    (setf (gef row :title) title))
+                (if artist   (setf (gef row :artist) artist))
+                (if rating   (setf (gef row :rating) rating))
+                (if ripped-p (setf (gef row :ripped) ripped))) 
+              row) *db*)))
+
+(defun delete-rows (selector-fn)
+  (setf *db* (remove-if selector-fn *db*)))
+
+
+(defun make-comprison-expr (field value)
+  `(equal (getf cd ,field) ,value))
 
 (dump-db)
