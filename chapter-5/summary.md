@@ -52,7 +52,7 @@
 - 通常のパラメータリスト；必須パラメータ
   - 引数が足りない、もしくは多い場合Lispはエラーを通知する
 
-### 5.2.1 オプショナルパラメータ
+## 5.3 オプショナルパラメータ
 
 - 必須ではないオプショナルな引数を定義するために使う
 - `&optional` というシンボルを使用する
@@ -85,4 +85,75 @@
 (foo 1 2 3) -> (1 2 3 T)
 (foo 1 2 4) -> (1 2 4 T)
 ```
+
+## 5.4 レストパラメータ
+
+- 引数の数ごとの関数を作るのは大変
+  - 引数の最大値は処理系依存
+  - CALL-ARGUMENT-LIMIT関数；実装ごとの特有な値を調べる関数
+  - 最近の実装なら引数の最大値は 4096〜536870911個にもなる
+- 可変長引数を渡す手段としてレスとパラメータが準備されている
+  - 可変長引数が必要な関数
+  - ex
+```
+(format t "hello world")
+(format t "hello ~a" name)
+(format t "x: ~d y: ~d" x y)
+
+(+)
+(+ 1)
+(+ 1 3)
+(+ 1 2 3)
+```
+- レストパラメータの使いかた
+- 必須パラメータのあとに `&rest` をつける
+- ex
+```
+(defun format (stream string &rest values)
+  ...)
+
+(defun + (&rest numbers)
+  ...)
+```
+
+## 5.5 キーワードパラメータ
+
+- 引数の順番を指定できる方法
+- 引数の後半だけひつよな場合等に使用する
+- 必須パラーメータ、`&optional`、`&rest` のあとに `&key` をつける
+- ex
+```
+(defun foo (&key a b c)
+  (list a b c))
+
+(foo) -> (NIL NIL NIL)
+(foo :a 1) -> (1 NIL NIL)
+(foo :b 1) -> (NIL 1 NIL)
+(foo :c 1) -> (NIL NIL 1)
+(foo :a 1 :c 3) -> (1 NIL 3)
+(foo :a 1 :b 2 :c 3) -> (1 2 3)
+(foo :a 1 :c 3 :b 2) -> (1 2 3)
+```
+
+- キーワードパラメータではデフォルト値のフォーム、`supplied-p`変数 も使える
+  - `supplied-p` : その値が引数として渡されていれば T
+- ex
+```
+(defun foo (&key (a 0) (b 0 supplied-p) (c (+ a b)))
+  (list a b c b-supplied-p))
+
+(foo :a 1) -> (1 0 1 NIL)
+(foo :b 1) -> (0 1 1 T)
+(foo :b 1 c: 4) -> (0 1 4 T)
+(foo :a 2 :b 1 :c 4) -> (2 1 4 T)
+```
+
+- 呼び出し元がパラメータを指定するときに使うキーワードを替えたい場合
+- ex
+```
+(defun foo (&key ((:apple a)) ((:box b) 0) ((:chalie c) 0 c-supplied-p))
+  (list a b c c-supplied-p))
+
+(foo :apple 10 :box 20 :chrlie 30) -> (10 0 20 T)
+
 
