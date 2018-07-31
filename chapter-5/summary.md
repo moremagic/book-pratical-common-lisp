@@ -178,6 +178,7 @@
   - 後方互換を維持するため残された
 - おすすめできない組み合わせの挙動
   - `&option` + `&key`
+
 ```
 (defun foo (x &optional y &key z) (list x y z))
 
@@ -186,15 +187,18 @@
 
 (foo 1 :z 3) -> ERROR
 ```
+
     - ERRORになる理由
       - `:z` がy に食われてしまった
       - `&key` がすでにないので ERROR
   - `&rest` + `&key`
+
 ```
 (defun foo (&rest rest &key a b c) (list rest a b c))
 
 (foo :a 1 :b 2 :c 3) -> ((:a 1 :b 2 :c 3) 1 2 3)
 ```
+
     - `&rest` と `&key` は両方同時に集められる
     - 結果二回出力される
 
