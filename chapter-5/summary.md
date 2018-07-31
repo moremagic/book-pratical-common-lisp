@@ -170,13 +170,12 @@
 
 - 一般的に `&optional` + `&key` をしたい場合は 全部`&key`であるべき
 - 例外もある
-  - `&optional` + `&key` な標準関数 
+  - `&optional` + `&key` な標準関数
     - READ-FROM-STRING
     - PARSE-NAMESTRING
     - WRITE-LINE
     - WRITE-STRING
   - 後方互換を維持するため残された
-
 - おすすめできない組み合わせの挙動
   - `&option` + `&key`
 ```
@@ -190,8 +189,6 @@
     - ERRORになる理由
       - `:z` がy に食われてしまった
       - `&key` がすでにないので ERROR
-
-
   - `&rest` + `&key`
 ```
 (defun foo (&rest rest &key a b c) (list rest a b c))
