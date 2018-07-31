@@ -156,4 +156,48 @@
 
 (foo :apple 10 :box 20 :chrlie 30) -> (10 0 20 T)
 
+## 5.6 異なる種類のパラメータ
+
+- 4種類のパラメータを一つの関数で全部使うこともできる
+- 使う場合は以下の順でないとならない
+  - 必須パラメータ
+  - オプショナルパラメータ `&optional`
+  - レストパラメータ `&rest`
+  - キーワードパラメータ `&key`
+- 数種類のパラメータ
+  - よくある組み合わせ；`&optional` + `&rest`
+  - おすすめできない；[`&optional` | `&rest`] + `&rest`
+
+- 一般的に `&optional` + `&key` をしたい場合は 全部`&key`であるべき
+- 例外もある
+  - `&optional` + `&key` な標準関数 
+    - READ-FROM-STRING
+    - PARSE-NAMESTRING
+    - WRITE-LINE
+    - WRITE-STRING
+  - 後方互換を維持するため残された
+
+- おすすめできない組み合わせの挙動
+  - `&option` + `&key`
+```
+(defun foo (x &optional y &key z) (list x y z))
+
+(foo 1 2 z: 3) -> (1 2 3)
+(foo 1) -> (1 NIL NIL)
+
+(foo 1 :z 3) -> ERROR
+```
+    - ERRORになる理由
+      - `:z` がy に食われてしまった
+      - `&key` がすでにないので ERROR
+
+
+  - `&rest` + `&key`
+```
+(defun foo (&rest rest &key a b c) (list rest a b c))
+
+(foo :a 1 :b 2 :c 3) -> ((:a 1 :b 2 :c 3) 1 2 3)
+```
+    - `&rest` と `&key` は両方同時に集められる
+    - 結果二回出力される
 
