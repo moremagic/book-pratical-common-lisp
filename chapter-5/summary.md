@@ -155,6 +155,7 @@
   (list a b c c-supplied-p))
 
 (foo :apple 10 :box 20 :chrlie 30) -> (10 0 20 T)
+```
 
 ## 5.6 異なる種類のパラメータ
 
