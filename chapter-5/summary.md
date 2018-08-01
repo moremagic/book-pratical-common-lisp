@@ -244,7 +244,7 @@
 (foo 1 2 3) == (funcall #'foo 1 2 3)
 ```
 
--APPLY
+- APPLY
 ```
 (foo 1 2 3) == (apply #'foo '(1 2 3))
 (foo 1 2 3) == (apply #'foo 1 '(2 3))
