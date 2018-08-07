@@ -15,3 +15,33 @@
   (let* ((x 10)
          (y (+ x 10)))
     (format t "LET*: x=~a y=~a" x y)))
+
+; count変数を束縛したLambda関数をダイナミック変数に代入
+(defparameter *fn* 
+  (let ((count 0))
+    #'(lambda () (setf count (1+ count)))))
+
+; count変数を束縛したLambda関数を変数に代入
+(setf aaa 
+  (let ((count 0))
+    #'(lambda () (setf count (1+ count)))))
+
+
+; lambdaを作り出す関数。
+; 毎回違うオブジェクトを作るのでcount変数束縛は全て違うものになる
+; (funcall (aaa))
+(defun aaa () 
+  (let ((count 0))
+    #'(lambda () (setf count (1+ count)))))
+
+
+; 複数のクロージャから一つの変数束縛を補足する
+; (funcall (car bbb))
+; (funcall (cadr bbb))
+; (funcall (caddr bbb))
+(setf bbb 
+      (let ((count 0))
+        (list
+          #'(lambda () (incf count))
+          #'(lambda () (decf count))
+          #'(lambda () count))))

@@ -54,5 +54,34 @@
 (dottimes (x 10) (format t "~d " x)) -> 0 1 2 3 4 5 6 7 8 9 
 ```
 
+## 6.2 レキシカル変数とクロージャ
 
+- クロージャ(closure:閉包)
+  - 束縛フォームが導入する変数はレキシカルスコープを持つ
+  - ローカル変数と似ているが、LETフォームによって作られた束縛を閉じ込めることができる
+  - 無名関数が変数束縛を補足することもできる
+```
+(defparameter *fn*
+  (let ((count 0))
+    #'(lambda () (setf count (+1 count)))))
 
+CL-USER> (funcall *fn*)
+1
+CL-USER> (funcall *fn*)
+2
+CL-USER> (funcall *fn*)
+3
+CL-USER> (funcall *fn*)
+4
+```
+  - このような無名関数はクロージャ(closure:閉包)と呼ばれる
+- 複数のクロージャから一つの変数束縛を補足することもできる
+- 一つのクロージャに複数の変数束縛を持つこともできる
+
+```
+(let ((count 0))
+  (list
+    #'(lambda () (incf count))
+    #'(lambda () (decf count))
+    #'(lambda () (count count))))
+```
