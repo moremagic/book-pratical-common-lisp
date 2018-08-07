@@ -45,3 +45,14 @@
           #'(lambda () (incf count))
           #'(lambda () (decf count))
           #'(lambda () count))))
+
+
+(defvar x 0)
+
+(defun foo ()
+  (format t "x value: ~a~%" x))
+
+(defun bar ()
+  (foo)
+  (let ((x 20)) (foo))
+  (foo))
