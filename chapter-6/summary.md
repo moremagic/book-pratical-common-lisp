@@ -132,3 +132,16 @@ CL-USER> (funcall *fn*)
   - `DEFVAR` `DEFPARAMETER` で宣言された変数の名前はスペシャル(special)だと宣言される
   - 束縛フォームでスペシャル宣言を使用すると新たな束縛が作られる
 
+## 6.4 定数
+
+- `DEFCONSTANT` フォームで宣言する
+```
+(defconstant name initial-value-form [ documentation-string ])
+```
+  - 定数は全てグローバル
+  - 定数名には +を先頭とお尻につける命名規則がある；+CONSTANT+
+  - 宣言すると参照のみ可能で変更できない
+  - `DEFCONSTANT`での値の再評価は言語仕様的には未定義
+    - 絶対に変わらない、本物の定数のみに使用したほうがいい（円周率等）
+
+
