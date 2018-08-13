@@ -56,3 +56,13 @@
   (foo)
   (let ((x 20)) (foo))
   (foo))
+
+(setf x 10)
+(defun foo (x) (setf x 10))
+
+;;setq setfの違い
+(setq lst '(a b c))
+(setf (car lst) 480)
+lst
+
+
