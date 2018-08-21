@@ -103,3 +103,75 @@
   - 'LOOP' マクロ
     - 高機能ループ。好き嫌いが別れる
 
+## 7.5 DOLIST と DOTIMES
+
+- `DOLIST`
+  - perl foreach, Python for と似ている
+  - 基本構文
+```
+(dolist (var list-form)
+  body-form*)
+```
+
+```
+(dolist (x '(1 2 3)) (print x))
+
+1 
+2 
+3 
+NIL
+```
+
+  - `DOLIST` を中断したい場合`RETURN` が使える
+```
+* (dolist (x '(1 2 3)) (print x) (if (evenp x) (return)))
+
+1 
+2 
+NIL
+* 
+```
+
+- `DOTIMES` は数を数えるループ
+```
+* (dotimes (i 4) (print i))
+
+0 
+1 
+2 
+3 
+NIL
+```
+  - `DOLIST` と同じように`RETURN` で途中中断できる
+
+## 7.6 DO
+
+- 柔軟性のある繰り返し構文 `DO`
+```
+(do (variable-definition*)
+  (end-test-form result-form*)
+  statement*)
+```
+
+  - variable-definition の構文
+```
+(var init-form step-form)
+```
+    - var が init-form で初期化される
+    - var がループごとに step-form で評価された値に変化する
+    - init-form を省略すると var は NIL になる
+  
+  - end-test-form
+    - end-test-form の評価値が 真 のとき result-form が評価される
+    - 偽 のとき statement が実行される
+    - result-form の評価値が `DO` フォームの値となる
+
+- `DO` フォームの例
+  - 11番目のフィボナッチ数を求める
+```
+(do ((n 0 (1+ n))
+      (cur 0 next)
+      (next 1 (+ cur next)))
+  ((= 10 n) cur))
+```
+
