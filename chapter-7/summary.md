@@ -175,3 +175,32 @@ NIL
   ((= 10 n) cur))
 ```
 
+## 7.7 強力なLOOP
+
+- `LOOP`マクロはに種類の風味がある
+  - シンプル
+  - 拡張
+- シンプル風味
+```
+(loop
+  body-form*)
+```
+  - `RETURN` を使ってLOOPを抜けるまで無限に繰り返す
+- 拡張風味
+```
+(loop for i from 1 to 10 collectiong i) => (1 2 3 4 5 6 7 8 9 10)
+```
+  - 拡張LOOPのシンボル
+    - across
+    - and
+    - below
+    - collectiong
+    - counting
+    - finally
+    - for
+    - from
+    - summing
+    - then
+    - to
+  - 詳細は22章で説明する
+
