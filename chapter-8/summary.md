@@ -52,11 +52,9 @@
 
 - 実際に `do-primes` というマクロを書いていく
 - あくまでもデモンストレーションなので実用的ではない
-
 - 補助関数が2つ
   - 与えられた数が素数かどうかを判定する関数
   - 与えられた引数と同じかそれより大きい次の素数を返す
-
 ```
 (defun primep (number)
   (when (> number 1)
@@ -64,6 +62,18 @@
 
 (defun next-prime (number)
   (loop for n from number when (primep n) return n))
+```
+- 目指すマクロ
+  - 0 〜 19 までの間の素数をループしてその時の素数を p に保持する
+```
+(do-primes (p 0 19)
+  (format t "~d " p))
+```
+  - 展開型
+```
+(do ((p (next-prime 0) (next-prime (1+ p))))
+  ((> p 19))
+  (format t "~d " p))
 ```
 
 
