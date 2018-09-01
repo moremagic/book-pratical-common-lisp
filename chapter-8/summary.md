@@ -76,4 +76,62 @@
   (format t "~d " p))
 ```
 
+## 8.5 マクロのパラメータ
+
+- マクロ展開後のテンプレートに値を埋め込んでいく
+  - 展開時に必要な全ての値を取得する必要がある
+  - マクロに渡される引数を展開する必要がある
+```
+(defmacro do-primes (var-and-range &rest body)
+  (let ((var (first var-and-range))
+        (start (second var-and-range))
+        (end (third var-and-range)))
+  `(do ((,var (next-prime ,start) (next-prime (1+ ,var))))
+    ((> ,var ,end))
+    ,@body)))
+```
+- マクロ定義の特殊機能
+  - 分配（destructuring）パラメータリスト
+    - macro内で `var-and-range` の展開を全て行う必要はない
+    - `(var start end)` というリストが指定できて、マクロ内で自動的に分解される
+    - SLIME エラーチェック時にパラメータリスト担っているとエラー情報が詳細になる
+  - `&body` パラメータ
+    - マクロ定義で使える
+    - `&rest`  と同義
+    - エディタ側で `&body` パラメータを見つけた場合適切に整形する 
+
+- 最終的なマクロ定義
+```
+(defmacro do-primes ((var start end) &body body)
+  `(do ((,var (next-prime ,start) (next-prime (1+ ,var))))
+    ((> ,var ,end))
+    ,@body))
+```
+
+## 8.6 展開形生成
+
+- バッククオート式
+  - バッククオートをつけることで式を未評価にする
+  - 一部評価したいときはカンマをつける
+  - カンマ、アットマーク でリストを外側リスト内に展開する
+
+- バッククオート式はすごく便利
+  - quote 式とは違う
+  - 一部分をカンマでアンクオート（unquote）できる
+  - マクロを書くときはとても便利
+```
+`(a (+ 1 2) c)        -> (a (+ 1 2) c)
+`(a ,(+ 1 2) c)       -> (a 3 c)
+`(a (list 1 2) c)     -> (a (list 1 2) c)
+`(a ,(list 1 2) c)    -> (a (1 2) c)
+`(a ,@(list 1 2) c)   -> (a 1 2 c)
+```
+
+- バッククオート式が正しく展開されたか確認してみる
+  - `MACROEXPAND-1` 関数でマクロ展開結果を確認することができる
+```
+(macroexpand-1 '(do-primes (p 0 19) (format t "~d " p)))
+
+(DO ((P (NEXT-PRIME 0) (NEXT-PRIME (1+ P)))) ((> P 19)) (FORMAT T "~d " P))
+```
 
