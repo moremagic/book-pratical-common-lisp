@@ -135,3 +135,80 @@
 (DO ((P (NEXT-PRIME 0) (NEXT-PRIME (1+ P)))) ((> P 19)) (FORMAT T "~d " P))
 ```
 
+## 8.7 漏れを塞ぐ
+
+− マクロは抽象化を作り出す
+− JoelSpolsky；漏れのある抽象化の法則
+  − 抽象化されているはずの細部が「漏れる」ことを漏れのある抽象化と表現した
+
+− マクロで内部動作が漏れる可能性は3つ
+  − 引数の多重評価
+  - ?
+  - ?
+
+- do-primes で抽象化の漏れ問題
+  − 部分フォーム `end` が多重評価される
+  − ループ終了条件で毎回評価されてしまう
+
+```
+(do-primes (p 0 (random 100))
+  (format t "~d " p))
+
+(macroexpand-1 `(do-primes (p 0 (random 100)) (format t "~d " p)))
+
+-> (DO ((P (NEXT-PRIME 0) (NEXT-PRIME (1+ P)))) ((> P (RANDOM 100))) (FORMAT T "~d " P))
+```
+
+- `end` を評価して変数に詰める版
+```
+(defmacro do-primes ((var start end) &body body)
+  `(do ((ending-value ,end)
+        (,var (next-prime ,start) (next-prime (1+ ,var))))
+       ((> ,var ending-value))
+    ,@body))
+```
+  − 問題が2つ
+    − 評価順に関わる問題
+      − `DO` フォームは変数の出現順に評価される問題
+      − `end` の評価が `start` の前に行われる
+      − `start` `end` に副作用のあるフォームを指定されたときにおかしくなる
+    − 変数名の問題
+      − `ending-value` という変数名をフォーム内で束縛している
+      - そのため 同名の変数を使用してマクロ呼び出しすると結果がおかしくなる
+
+- 評価順に関わる問題
+  - 評価順を変える
+```
+(defmacro do-primes ((var start end) &body body)
+  `(do ((,var (next-prime ,start) (next-prime (1+ ,var))))
+        (ending-value ,end)
+       ((> ,var ending-value))
+    ,@body))
+```
+
+- 変数名の問題
+  - `GENSYM` 関数を使用する
+    - ユニークな変数名を生成する関数
+    - 必ず一意になる
+```
+(defmacro do-primes ((var start end) &body body)
+  (let ((ending-value (gensym)))
+    `(do ((,var (next-prime ,start) (next-prime (1+ ,var))))
+          (,ending-value ,end)
+         ((> ,var ,ending-value))
+      ,@body)))
+
+? (macroexpand-1 '(do-primes (p 0 (random 100)) (format t "~d " p)))
+(DO ((P (NEXT-PRIME 0) (NEXT-PRIME (1+ P)))) (#:G466 (RANDOM 100)) ((> P #:G466)) (FORMAT T "~d " P))
+```
+
+- マクロの抽象化の漏れをなくすには以下のルールに従う
+  - 特別な理由がない限り、部分フォームは出現順に評価する
+  - 特別な理由がない限り、部分フォームは一度だけ評価されるようにする
+  - 展開系の中で使う変数は、`GENSYM`関数をつかって作ること
+
+ 
+
+
+
+
