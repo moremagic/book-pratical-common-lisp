@@ -207,8 +207,33 @@
   - 特別な理由がない限り、部分フォームは一度だけ評価されるようにする
   - 展開系の中で使う変数は、`GENSYM`関数をつかって作ること
 
- 
+## 8.8 マクロを書くマクロ
 
+- 関数を書くとき以外もマクロは使える
+- マクロを書くマクロを紹介する
+
+- 多くのマクロはマクロ無い変数を使用するとき `gensym` を使う
+- これを抽象化する`with-gensyms` マクロを作ってみる
+- 以下のように使用する
+```
+(defmacro do-primes ((var start end) &body body)
+  (with-gensyms (end-value-name)
+    `(do ((,var (next-prime ,start) (next-prime (1+ ,var)))
+          (,ending-value-name ,end))
+         ((> ,var ,ending-value-name))
+        ,@body)))
+```
+
+```
+(defmacro with-gensyms ((&rest names) &body body)
+  `(let ,(loop for n in names collect `(,n (gensym)))
+      ,@body))
+```
+- 以下のように動作確認できる
+```
+? (loop for n in `(a b c) collect `(,n (gensym)))
+((A (GENSYM)) (B (GENSYM)) (C (GENSYM)))
+```
 
 
 
