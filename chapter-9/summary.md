@@ -25,6 +25,7 @@ T
 - 問題点
   - エラーになったときにどこで問題が起きたかわからない
   - 改善版
+    - 最初の引数が偽だと FAIL、そうでなければ PASS を表示させている 
 ```
 (defun test-+ ()
   (format t "~:[FAIL~;pass~] ... ~a~%" (= (+ 1 2) 3) `(= (+ 1 2) 3))
@@ -44,5 +45,52 @@ NIL
   - テスト式が繰り返されている
   - 全てのテストをパスしたという表示がない
 
+9.2 リファクタリング
 
+- 最初のバージョンと同じくらい記述を簡潔にしたい
+- リファクタリングしていく
+  - 繰り返しが多く無駄が多い
+  - 繰り返しを取り払っていく
 
+- 毎回 format を書くのが冗長
+```
+(defun report-result (result form)
+    (format t "~:[FAIL~;pass~] ... ~a~%" result form))
+
+(defun test-+ ()
+  (report-result (= (+ 1 2) 3) `(= (+ 1 2) 3))
+  (report-result (= (+ 1 2 3) 6) `(= (+ 1 2 3) 6))
+  (report-result (= (+ -1 -3) -4) `(= (+ -1 -3) -4)))  
+```
+
+- 結果のラベルと式を別々に指定するのは冗長
+  - マクロ化する
+```
+(defun report-result (result form)
+    (format t "~:[FAIL~;pass~] ... ~a~%" result form))
+
+(defmacro check (form)
+    `(report-result ,form ',form))
+
+(defun test-+ ()
+  (check (= (+ 1 2) 3))
+  (check (= (+ 1 2 3) 6))
+  (check (= (+ -1 -3) -4)))
+```
+
+- check マクロwの繰り返しが冗長
+  - PROGN で包むテクニック
+```
+(defun report-result (result form)
+    (format t "~:[FAIL~;pass~] ... ~a~%" result form))
+
+(defmacro check (&body forms)
+    `(progn
+        ,@(loop for f in forms collect `(report-result ,f ',f))))
+
+(defun test-+ ()
+    (check
+        (= (+ 1 2) 3)
+        (= (+ 1 2 3) 6)
+        (= (+ -1 -3) -4)))
+```
