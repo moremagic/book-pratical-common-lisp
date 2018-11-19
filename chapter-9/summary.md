@@ -94,3 +94,65 @@ NIL
         (= (+ 1 2 3) 6)
         (= (+ -1 -3) -4)))
 ```
+## 9.3 戻り値を手直しする
+
+- 全テストケースをパスしたかどうかを戻り値で示したい
+- report-result をテストの結果を返せるように変更する
+```
+(defun report-result (result form)
+    (format t "~:[FAIL~;pass~] ... ~a~%" result form)
+    result)
+```
+- PROGN を AND にすればよいか？
+  - 良くない
+  - AND は途中でNIL が起きると評価をやめてしまう
+- このようなマクロがあればいい
+```
+(combine-results
+  (foo)
+  (bar)
+  (baz))
+
+;; このように展開されてほしい
+(let ((result t))
+  (unless (foo) (setf result nil))
+  (unless (bar) (setf result nil))
+  (unless (baz) (setf result nil))
+  result)
+```
+- 注意
+  - 変数 result をマクロで展開すると抽象化の漏れが起きる可能性がある
+  - 8章で作った with-gensyms を使用する
+
+```
+(defmacro with-gensyms ((&rest names) &body body)
+  `(let ,(loop for n in names collect `(,n (gensym)))
+      ,@body))
+
+(defmacro combine-results (&body forms)
+    (with-gensyms (result)
+        `(let ((,result t))
+            ,@(loop for f in forms collect `(unless ,f (setf ,result nil)))
+            ,result)))
+```
+
+- PROGN の代わりに combine-result を使用する
+```
+(defmacro check (&body forms)
+    `(combine-results
+        ,@(loop for f in forms collect `(report-result ,f ',f))))
+```
+
+```
+(defun test-+ ()
+    (check
+        (= (+ 1 2) 3)
+        (= (+ 1 2 3) 6)
+        (= (+ -1 -3) -4)))
+
+? (test-+)
+pass ... (= (+ 1 2) 3)
+pass ... (= (+ 1 2 3) 6)
+pass ... (= (+ -1 -3) -4)
+T
+```
