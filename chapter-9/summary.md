@@ -248,3 +248,94 @@ T
     (= (* 2 2) 4)
     (= (* 3 5) 15)))
 ```
+
+## 9.6 テストの階層
+
+- テストケースが増えてきた場合のことを考えてみる
+  - test-arithmetic のような関数を作って大量のテストができる
+  - テストケースをグループ化してテストスイートを作っていく
+    - 今のレポートで情報は足りているか？
+    - 以下のようにテスト名だけでなくテストの階層構造も表示したくなる
+```
+pass ... (TEST-ARITHMETIC TEST-+): (= (+ 1 2) 3)
+```
+
+- deftest マクロでテストスイート名を保持するように変更する
+```
+(let ((*test-name* (append *test-name* (list ',name))))
+  ...)
+```
+- deftestマクロを使用して テストスイートを作成する
+```
+(deftest test-arithmetic ()
+    (combine-results
+        (test-+)
+        (test-*)))
+
+? (test-arithmetic)
+pass ... (TEST-ARITHMETIC TEST-+): (= (+ 1 2) 3)
+pass ... (TEST-ARITHMETIC TEST-+): (= (+ 1 2 3) 6)
+pass ... (TEST-ARITHMETIC TEST-+): (= (+ -1 -3) -4)
+pass ... (TEST-ARITHMETIC TEST-*): (= (* 2 2) 4)
+pass ... (TEST-ARITHMETIC TEST-*): (= (* 3 5) 15)
+T
+```
+- テストスイートの階層を深くしてみる
+```
+(deftest test-math ()
+    (test-arithmetic))
+
+? (test-math)
+pass ... (TEST-MATH TEST-ARITHMETIC TEST-+): (= (+ 1 2) 3)
+pass ... (TEST-MATH TEST-ARITHMETIC TEST-+): (= (+ 1 2 3) 6)
+pass ... (TEST-MATH TEST-ARITHMETIC TEST-+): (= (+ -1 -3) -4)
+pass ... (TEST-MATH TEST-ARITHMETIC TEST-*): (= (* 2 2) 4)
+pass ... (TEST-MATH TEST-ARITHMETIC TEST-*): (= (* 3 5) 15)
+T
+```
+
+## 9.7 まとめ
+
+- これでテストフレームワークが完成した
+```
+(defvar *test-name* nil)
+
+(defmacro with-gensyms ((&rest names) &body body)
+  `(let ,(loop for n in names collect `(,n (gensym)))
+      ,@body))
+
+(defun report-result (result form)
+    (format t "~:[FAIL~;pass~] ... ~a: ~a~%" result *test-name* form)
+    result)
+
+(defmacro combine-results (&body forms)
+    (with-gensyms (result)
+        `(let ((,result t))
+            ,@(loop for f in forms collect `(unless ,f (setf ,result nil)))
+            ,result)))
+
+(defmacro check (&body forms)
+    `(combine-results
+        ,@(loop for f in forms collect `(report-result ,f ',f))))
+
+(defmacro deftest (name parametors &body body)
+  `(defun ,name ,parametors
+      (let ((*test-name* (append *test-name* (list ',name))))
+          ,@body)))
+```
+
+- テストフレームワークを作る過程は良い実例
+- 過程
+  - 問題の簡単なバージョンを定義する
+    - 真理値をたくさん持つ式を評価する
+  - 結果レポートの工夫が必要なことに気がついた
+    - とりあえず書いてみる
+  - 最初のバージョンと同じくらいきれいなコードにしてみる
+    - いくつかのコードを関数にまとめた（report-result）
+    - 冗長な関数を改善するためマクロを書いた（check）
+      - check で 複数のrepot-resultをまとめられることに気がついた
+  - APIが確定したので内部動作に集中して改善できた
+    - 短絡しないAND関数がほしい（combine-results）
+    - レポート出力の改善、抽象化が可能そう
+      - deftest マクロの作成
+      - テスト関数に手を加えずに結果レポート出力の改善ができた
