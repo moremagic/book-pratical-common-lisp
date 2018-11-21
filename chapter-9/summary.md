@@ -225,3 +225,26 @@ pass ... TEST-*: (= (* 2 2) 4)
 pass ... TEST-*: (= (* 3 5) 15)
 T
 ```
+
+## 9.5 抽象化の余地
+
+- テスト関数に重複による無駄がある
+  - 関数名と同じものを *test-name* にセットする部分
+- 不完全な抽象化はたちが悪い
+  - 重複したコードは保守性が悪い
+  - 大量に同じコードを書かなくてはいけなくなる
+- マクロによって抽象化する
+  - deftest というマクロを作る
+```
+(defmacro deftest (name parametors &body body)
+  `(defun ,name ,parametors
+      (let ((*test-name* ',name))
+          ,@body)))
+```
+- テストを書き直すとこうなる
+```
+(deftest test-* ()
+  (check
+    (= (* 2 2) 4)
+    (= (* 3 5) 15)))
+```
