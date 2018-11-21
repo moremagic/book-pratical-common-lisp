@@ -196,11 +196,12 @@ T
 ```
 (defvar *test-name* nil)
 ```
-    - repotr-result でダイナミック変数を出力するよう改良を加える
+
+  - repotr-result でダイナミック変数を出力するよう改良を加える
 ```
 (format t "~:[FAIL~;pass~] ... ~a: ~a~%" result *test-name* form)
 ```
-    - test名を出力するためテスト関数を手直しする
+  - test名を出力するためテスト関数を手直しする
 ```
 (defun test-+ ()
   (let ((*test-name* 'test-+))
