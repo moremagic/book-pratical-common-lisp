@@ -312,7 +312,7 @@ NIL
     - 大文字小文字を区別するもの
     - 大文字小文字を区別しないもの
 
-| 数 | 文字（区別する） | 文字（区別しない） |
+| 数 | 文字（大文字小文字を区別する） | 文字（区別しない） |
 | --- | --- | --- |
 | `=`  | `CHAR=`  | `CHAR-EQUAL` |
 | `/=` | `CHAR/=` | `CHAR-NOT-EQUAL` |
@@ -338,3 +338,35 @@ foo"bar
 NIL
 ?
 ```
+## 10.9 文字列比較
+
+- 文字列はcharと同じような関数で比較可能
+
+| 数 | 文字（大文字小文字を区別する） | 文字（区別しない） |
+| --- | --- | --- |
+| `=`  | `STRING=`  | `STRING-EQUAL` |
+| `/=` | `STRING/=` | `STRING-NOT-EQUAL` |
+| `<`  | `STRING<`  | `STRING-LESSP` |
+| `>`  | `STRING>`  | `STRING-GREATERP` |
+| `<=` | `STRING<=` | `STRING-NOT-GRATERP` |
+| `>=` | `STRING>=` | `STRING-NOT-LESSP` |
+
+- 文字列は文字列同士でしか比較できない
+- 部分文字列を比較可能
+    - `:start1` `:start2` `:end1` `:end2`
+    ```
+    (string= "foobarbaz" "quuxbarfoo" :start1 3 :end1 6 :start2 4 :end2 7)
+    T
+    ```
+- 文字列が異なるときに真になる比較関数
+    - 違いが見つかったときのインデックスを返却する
+    ```
+    (string/= "lisp" "lisper")
+    4
+    ```
+    - 部分文字列の場合は元の文字のインデックス
+    ```
+    (string< "foobar" "abaz" :start1 3 :start2 1)
+    5
+    ```
+
