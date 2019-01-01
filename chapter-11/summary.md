@@ -87,3 +87,24 @@
         ? *x*
         #(1)
         ```
+## 11.2 特殊ベクタ
+
+- 特殊ベクタ；要素内の型を制限したベクタ
+```
+? (setf a (make-array 5 :fill-pointer 0 :adjustable t :element-type 'character))
+""
+? a
+""
+? (vector-push #\a a)
+2
+? a
+"a"
+? (vector-push #\b a)
+3
+? a
+"ab"
+? (vector-pop a)
+#\b
+? a
+"a"
+```
