@@ -108,3 +108,32 @@
 ? a
 "a"
 ```
+## 11.3 シーケンスとしてのベクタ
+
+- ベクタとリストはシーケンスのサブタイプ
+- 最も基本的なシーケンス関数
+    - `LENGTH` 要素の数を返す
+    - `ELT` インデックスアクセス
+
+```
+? (defparameter *x* (vector 1 2 3))
+*X*
+? (length *x*)
+3
+? (elt *x* 0)
+1
+? (elt *x* 1)
+2
+? (elt *x* 2)
+3
+? (elt *x* 3)
+> Error: 3 is not a valid sequence index for #<SIMPLE-VECTOR 3>
+> While executing: ELT, in process listener(1).
+> Type :POP to abort, :R for a list of available restarts.
+> Type :? for other options.
+1 > q
+? (setf (elt *x* 0) 100)
+100
+? *x*
+#(100 2 3)
+```
